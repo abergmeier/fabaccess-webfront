@@ -80,6 +80,345 @@ paths:
               schema:
                 $ref: '#/components/schemas/Authentication'
 
+  /machines/{machineId}:
+    get:
+      summary: Get machine details
+      operationId: org.fab-access.machines.get
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Machine details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Machine'
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/properties:
+    get:
+      summary: Get machine property list
+      operationId: org.fab-access.machine.properties.list
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Machine property list retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KeyValuePair'
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/reservations:
+    get:
+      summary: Get machine reservation list
+      operationId: org.fab-access.machine.reservations.list
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Machine reservation list retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/use:
+    post:
+      summary: Use the machine
+      operationId: org.fab-access.machine.use
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine usage initiated successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/reserve:
+    post:
+      summary: Reserve the machine
+      operationId: org.fab-access.machine.reservations.create
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine reserved successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/reserveto:
+    post:
+      summary: Reserve the machine for a specific time range
+      operationId: org.fab-access.machine.reservations.createTo
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: start
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: uint64
+        - name: end
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: uint64
+      responses:
+        '204':
+          description: Machine reserved for the specified time range successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/giveback:
+    post:
+      summary: Give back the machine
+      operationId: org.fab-access.machine.giveBack
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine given back successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/releasefortakeover:
+    post:
+      summary: Release the machine for takeover
+      operationId: org.fab-access.machine.releaseForTakeover
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine released for takeover successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/takeover:
+    post:
+      summary: Take over the machine
+      operationId: org.fab-access.machine.takeOverMachine
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine taken over successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/check:
+    post:
+      summary: Check the machine
+      operationId: org.fab-access.machine.check
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine checked successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/manage:
+    get:
+      summary: Get extended machine info
+      operationId: org.fab-access.machine.infoExtended
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Extended machine info retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MachineInfoExtended'
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/manage/properties:
+    post:
+      summary: Set machine property
+      operationId: org.fab-access.machine.properties.set
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Property to be set
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeyValuePair'
+      responses:
+        '204':
+          description: Machine property set successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/manage/properties/{propertyKey}:
+    delete:
+      summary: Remove machine property
+      operationId: org.fab-access.machine.properties.remove
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: propertyKey
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine property removed successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/manage/forceuse:
+    post:
+      summary: Force use the machine
+      operationId: org.fab-access.machine.forceUse
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine forced to use successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/manage/forcefree:
+    post:
+      summary: Force free the machine
+      operationId: org.fab-access.machine.forceFree
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine forced to free successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/manage/forcetransfer:
+    post:
+      summary: Force transfer the machine to another user
+      operationId: org.fab-access.machine.forceTransfer
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: User to transfer the machine to
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '204':
+          description: Machine forced to transfer successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/manage/block:
+    post:
+      summary: Block the machine
+      operationId: org.fab-access.machine.block
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine blocked successfully
+        '404':
+          description: Machine not found
+
+  /machines/{machineId}/manage/disable:
+    post:
+      summary: Disable the machine
+      operationId: org.fab-access.machine.disable
+      parameters:
+        - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Machine disabled successfully
+        '404':
+          description: Machine not found
+
 components:
   schemas:
     AuthenticationMechanism:
@@ -164,3 +503,134 @@ components:
     Session:
       type: object
       description: Session details
+
+    Machine:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the machine
+        space:
+          $ref: '#/components/schemas/Space'
+        name:
+          type: string
+          description: The name of the machine
+        description:
+          type: string
+          description: The description of the machine
+        state:
+          type: string
+          enum:
+            - free
+            - inUse
+            - toCheck
+            - blocked
+            - disabled
+            - reserved
+            - totakeover
+          description: The current state of the machine
+        manager:
+          $ref: '#/components/schemas/OptionalUser'
+        wiki:
+          type: string
+          description: The wiki link for the machine
+        urn:
+          type: string
+          description: The URN of the machine
+        category:
+          type: string
+          description: The category of the machine
+      required:
+        - id
+        - space
+        - name
+        - state
+      description: Represents a machine in the system
+
+    MachineInfoExtended:
+      type: object
+      properties:
+        currentUser:
+          $ref: '#/components/schemas/OptionalUser'
+        lastUser:
+          $ref: '#/components/schemas/OptionalUser'
+        instructorUser:
+          $ref: '#/components/schemas/OptionalUser'
+      description: Extended information about a machine
+
+    Reservation:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        start:
+          type: integer
+          format: uint64
+          description: The start time of the reservation
+        end:
+          type: integer
+          format: uint64
+          description: The end time of the reservation
+      required:
+        - user
+        - start
+        - end
+      description: Represents a reservation for a machine
+
+    KeyValuePair:
+      type: object
+      properties:
+        key:
+          type: string
+          description: The key of the property
+        value:
+          type: string
+          description: The value of the property
+      required:
+        - key
+        - value
+      description: Represents a key-value pair
+
+    OptionalUser:
+      type: object
+      description: Represents an optional user
+      oneOf:
+        - $ref: '#/components/schemas/Nothing'
+        - $ref: '#/components/schemas/JustUser'
+
+    Nothing:
+      type: object
+      description: Represents the absence of a value
+
+    JustUser:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+      description: Represents the presence of a user
+
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the user
+      description: Represents a user in the system
+
+    Space:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the space
+      description: Represents a space in the system
+
+    Data:
+      type: object
+      properties:
+        content:
+          type: string
+          description: The content of the data
+      required:
+        - content
+      description: Represents raw data to be sent to the machine
