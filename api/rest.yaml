@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: FabAccess API
-  version: 1.0.0
+  version: 0.0.1
 
 paths:
   /authentication/step:
@@ -43,8 +43,49 @@ paths:
         '404':
           description: Session not found
 
+  /bootstrap/mechanisms:
+    get:
+      summary: Get list of mechanisms allowed by the server
+      operationId: org.fab-access.bootstrap.mechanisms.list
+      responses:
+        '200':
+          description: List of mechanisms retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuthenticationMechanism'
+
+  /bootstrap/create-session:
+    post:
+      summary: Create a new session with the server
+      operationId: org.fab-access.bootstrap.sessions.create
+      requestBody:
+        description: Mechanism to use for authentication
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mechanism:
+                  type: string
+                  description: Authentication mechanism
+      responses:
+        '200':
+          description: New session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Authentication'
+
 components:
   schemas:
+    AuthenticationMechanism:
+      type: string
+      description: Mechanism for authentication
+
     Data:
       type: object
       properties:
@@ -115,3 +156,11 @@ components:
         - invalidCredentials
         - failed
       description: Error codes for authentication response
+
+    Authentication:
+      type: object
+      description: Authentication session details
+
+    Session:
+      type: object
+      description: Session details
