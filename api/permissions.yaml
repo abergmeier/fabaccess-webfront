@@ -1,0 +1,25 @@
+openapi: 3.0.3
+info:
+  title: FabAccess Permission API
+  version: 0.0.1
+paths:
+  /roles:
+    get:
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          format: uint64
+      summary: Get role list
+      operationId: org.fab-access.roles.list
+      responses:
+        '200':
+          description: Roles list retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'general.yaml#/components/schemas/Role'
+

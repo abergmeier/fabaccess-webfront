@@ -1,0 +1,275 @@
+openapi: 3.0.3
+info:
+  title: FabAccess User API
+  version: 0.0.1
+
+paths:
+  /users:
+    post:
+      summary: Create a new user
+      operationId: org.fab-access.users.create
+      requestBody:
+        description: User details
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: The username of the user
+                password:
+                  type: string
+                  description: The password of the user
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: 'general.yaml#/components/schemas/User'
+        '400':
+          description: Invalid input
+        '409':
+          description: User already exists
+  /users/{userId}:
+    get:
+      summary: Get user details
+      operationId: org.fab-access.users.get
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: 'general.yaml#/components/schemas/User'
+        '404':
+          description: User not found
+      
+    delete:
+      summary: Delete user
+      operationId: org.fab-access.users.delete
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: 'general.yaml#/components/schemas/User'
+        '404':
+          description: User not found
+
+  /users/by-name/{userName}:
+    get:
+      summary: Get user details
+      operationId: org.fab-access.users.get-by-name
+      parameters:
+        - name: userName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: 'general.yaml#/components/schemas/User'
+        '404':
+          description: User not found
+
+  /users/{userId}/password:
+    post:
+      summary: Change user password
+      operationId: changePassword
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Old and new passwords
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_pwd:
+                  type: string
+                  description: Old password
+                new_pwd:
+                  type: string
+                  description: New password
+              required:
+                - old_pwd
+                - new_pwd
+      responses:
+        '204':
+          description: Password changed successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: User not found
+
+  /users/{userId}/user-info-extended:
+    get:
+      summary: Get extended user info
+      operationId: getUserInfoExtended
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Extended user info retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfoExtended'
+        '404':
+          description: User not found
+
+  /users/{userId}/roles:
+    get:
+      summary: List roles associated with the user
+      operationId: listRoles
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'general.yaml#/components/schemas/Role'
+        '404':
+          description: User not found
+    post:
+      summary: Add a role to the user
+      operationId: addRole
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Role to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'general.yaml#/components/schemas/Role'
+      responses:
+        '204':
+          description: Role added successfully
+        '404':
+          description: User not found
+
+    delete:
+      summary: Remove a role from the user
+      operationId: removeRole
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Role to be removed
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'general.yaml#/components/schemas/Role'
+      responses:
+        '204':
+          description: Role removed successfully
+        '404':
+          description: User not found
+
+  /users/{userId}/admin/password:
+    post:
+      summary: Set user password
+      operationId: setPassword
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: New password
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_pwd:
+                  type: string
+                  description: New password
+              required:
+                - new_pwd
+      responses:
+        '204':
+          description: Password set successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: User not found
+
+
+components:
+  schemas:
+
+    UserInfoExtended:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: The name of the user
+      required:
+        - id
+        - name
+      description: Extended information about a user
+
+    Data:
+      type: object
+      properties:
+        content:
+          type: string
+          description: The content of the data
+      required:
+        - content
+      description: Represents raw data

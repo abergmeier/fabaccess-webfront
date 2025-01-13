@@ -1,91 +1,52 @@
 openapi: 3.0.3
 info:
-  title: FabAccess API
+  title: FabAccess Machine API
   version: 0.0.1
-
 paths:
-  /authentication/step:
-    post:
-      summary: Respond to a challenge with more data
-      operationId: org.fab-access.authentication.step
-      requestBody:
-        description: Data for the authentication step
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Data'
-      responses:
-        '200':
-          description: Authentication step response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Response'
-        '400':
-          description: Invalid input data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FailedResponse'
-        '401':
-          description: Unauthorized access
-
-  /authentication/abort:
-    post:
-      summary: Abort the current exchange
-      operationId: org.fab-access.authentication.abort
-      responses:
-        '200':
-          description: Authentication exchange aborted successfully
-        '400':
-          description: Invalid request
-        '404':
-          description: Session not found
-
-  /bootstrap/mechanisms:
+  /machines:
     get:
-      summary: Get list of mechanisms allowed by the server
-      operationId: org.fab-access.bootstrap.mechanisms.list
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          format: uint64
+      summary: Get machine list
+      operationId: org.fab-access.machines.list
       responses:
         '200':
-          description: List of mechanisms retrieved successfully
+          description: Machine list retrieved successfully
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AuthenticationMechanism'
-
-  /bootstrap/create-session:
-    post:
-      summary: Create a new session with the server
-      operationId: org.fab-access.bootstrap.sessions.create
-      requestBody:
-        description: Mechanism to use for authentication
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                mechanism:
-                  type: string
-                  description: Authentication mechanism
-      responses:
-        '200':
-          description: New session created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Authentication'
-
+                  $ref: '#/components/schemas/Machine'
   /machines/{machineId}:
     get:
       summary: Get machine details
       operationId: org.fab-access.machines.get
       parameters:
         - name: machineId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Machine details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Machine'
+        '404':
+          description: Machine not found
+  /machines/by-urn/{machineUrn}:
+    get:
+      summary: Get machine by URN
+      operationId: org.fab-access.machines.get-urn
+      parameters:
+        - name: machineUrn
           in: path
           required: true
           schema:
@@ -116,9 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/KeyValuePair'
+                $ref: '#/components/schemas/MachineProperties'
         '404':
           description: Machine not found
 
@@ -304,7 +263,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/KeyValuePair'
+              type: object
+              additionalProperties:
+                type: string
       responses:
         '204':
           description: Machine property set successfully
@@ -380,7 +341,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              $ref: 'general.yaml#/components/schemas/User'
       responses:
         '204':
           description: Machine forced to transfer successfully
@@ -421,89 +382,6 @@ paths:
 
 components:
   schemas:
-    AuthenticationMechanism:
-      type: string
-      description: Mechanism for authentication
-
-    Data:
-      type: object
-      properties:
-        content:
-          type: string
-          description: The content of the data
-      required:
-        - content
-      description: Data for the authentication process
-
-    Session:
-      type: object
-      properties:
-        sessionId:
-          type: string
-          description: The session identifier
-      required:
-        - sessionId
-      description: Session created after successful authentication
-
-    Response:
-      type: object
-      description: Response from the authentication process
-      oneOf:
-        - $ref: '#/components/schemas/ChallengeResponse'
-        - $ref: '#/components/schemas/SuccessfulResponse'
-
-    FailedResponse:
-      type: object
-      properties:
-        code:
-          type: string
-          enum:
-            - aborted
-            - badMechanism
-            - invalidCredentials
-            - failed
-          description: Error code indicating the cause of the error
-        additionalData:
-          $ref: '#/components/schemas/Data'
-          description: Additional data after an error
-      description: Response indicating a failure
-
-    ChallengeResponse:
-      type: object
-      properties:
-        challenge:
-          $ref: '#/components/schemas/Data'
-          description: Data indicating more information is needed for authentication
-      description: Response indicating a challenge
-
-    SuccessfulResponse:
-      type: object
-      properties:
-        session:
-          $ref: '#/components/schemas/Session'
-          description: The session that was created
-        additionalData:
-          $ref: '#/components/schemas/Data'
-          description: Additional data after successful authentication
-      description: Response indicating successful authentication
-
-    Error:
-      type: string
-      enum:
-        - aborted
-        - badMechanism
-        - invalidCredentials
-        - failed
-      description: Error codes for authentication response
-
-    Authentication:
-      type: object
-      description: Authentication session details
-
-    Session:
-      type: object
-      description: Session details
-
     Machine:
       type: object
       properties:
@@ -511,7 +389,7 @@ components:
           type: string
           description: The unique identifier of the machine
         space:
-          $ref: '#/components/schemas/Space'
+          $ref: 'general.yaml#/components/schemas/Space'
         name:
           type: string
           description: The name of the machine
@@ -530,7 +408,7 @@ components:
             - totakeover
           description: The current state of the machine
         manager:
-          $ref: '#/components/schemas/OptionalUser'
+          $ref: 'general.yaml#/components/schemas/User'
         wiki:
           type: string
           description: The wiki link for the machine
@@ -551,18 +429,26 @@ components:
       type: object
       properties:
         currentUser:
-          $ref: '#/components/schemas/OptionalUser'
+          $ref: 'general.yaml#/components/schemas/User'
         lastUser:
-          $ref: '#/components/schemas/OptionalUser'
+          $ref: 'general.yaml#/components/schemas/User'
         instructorUser:
-          $ref: '#/components/schemas/OptionalUser'
+          $ref: 'general.yaml#/components/schemas/User'
       description: Extended information about a machine
+
+    MachineProperties:
+      type: array
+      items:
+        type: object
+        additionalProperties:
+          type: string
+
 
     Reservation:
       type: object
       properties:
         user:
-          $ref: '#/components/schemas/User'
+          $ref: 'general.yaml#/components/schemas/User'
         start:
           type: integer
           format: uint64
@@ -574,63 +460,4 @@ components:
       required:
         - user
         - start
-        - end
       description: Represents a reservation for a machine
-
-    KeyValuePair:
-      type: object
-      properties:
-        key:
-          type: string
-          description: The key of the property
-        value:
-          type: string
-          description: The value of the property
-      required:
-        - key
-        - value
-      description: Represents a key-value pair
-
-    OptionalUser:
-      type: object
-      description: Represents an optional user
-      oneOf:
-        - $ref: '#/components/schemas/Nothing'
-        - $ref: '#/components/schemas/JustUser'
-
-    Nothing:
-      type: object
-      description: Represents the absence of a value
-
-    JustUser:
-      type: object
-      properties:
-        user:
-          $ref: '#/components/schemas/User'
-      description: Represents the presence of a user
-
-    User:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the user
-      description: Represents a user in the system
-
-    Space:
-      type: object
-      properties:
-        name:
-          type: string
-          description: The name of the space
-      description: Represents a space in the system
-
-    Data:
-      type: object
-      properties:
-        content:
-          type: string
-          description: The content of the data
-      required:
-        - content
-      description: Represents raw data to be sent to the machine

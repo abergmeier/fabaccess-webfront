@@ -1,0 +1,45 @@
+openapi: 3.0.3
+info:
+  title: FabAccess Base API
+  version: 0.0.1
+paths: {}
+components:
+  schemas:
+    Space:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: The name of the space
+        info:
+          type: string
+          description: Additional information about the space
+      description: Represents a space in the system
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+          description: The username of the user
+        space:
+          $ref: 'general.yaml#/components/schemas/Space'
+      required:
+        - id
+        - username
+        - space
+      description: Represents a user in the system
+
+    Role:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the role
+      description: Represents a role in the system

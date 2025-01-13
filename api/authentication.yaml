@@ -1,0 +1,119 @@
+openapi: 3.0.3
+info:
+  title: FabAccess Auth API
+  version: 0.0.1
+
+paths:
+  /authentication/step:
+    post:
+      summary: Respond to a challenge with more data
+      operationId: org.fab-access.authentication.step
+      requestBody:
+        description: Data for the authentication step
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticationData'
+      responses:
+        '200':
+          description: Authentication step response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailedResponse'
+        '401':
+          description: Unauthorized access
+
+  /authentication/abort:
+    post:
+      summary: Abort the current exchange
+      operationId: org.fab-access.authentication.abort
+      responses:
+        '200':
+          description: Authentication exchange aborted successfully
+        '400':
+          description: Invalid request
+        '404':
+          description: Session not found
+
+components:
+  schemas:
+    AuthenticationMechanism:
+      type: string
+      description: Mechanism for authentication
+
+    Response:
+      type: object
+      description: Response from the authentication process
+      oneOf:
+        - $ref: '#/components/schemas/ChallengeResponse'
+        - $ref: '#/components/schemas/SuccessfulResponse'
+
+    FailedResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          enum:
+            - aborted
+            - badMechanism
+            - invalidCredentials
+            - failed
+          description: Error code indicating the cause of the error
+        additionalData:
+          $ref: '#/components/schemas/AuthenticationData'
+          description: Additional data after an error
+      description: Response indicating a failure
+
+    ChallengeResponse:
+      type: object
+      properties:
+        challenge:
+          $ref: '#/components/schemas/AuthenticationData'
+          description: Data indicating more information is needed for authentication
+      description: Response indicating a challenge
+
+    SuccessfulResponse:
+      type: object
+      properties:
+        session:
+          $ref: '#/components/schemas/Session'
+          description: The session that was created
+        additionalData:
+          $ref: '#/components/schemas/AuthenticationData'
+          description: Additional data after successful authentication
+      description: Response indicating successful authentication
+
+    Error:
+      type: string
+      enum:
+        - aborted
+        - badMechanism
+        - invalidCredentials
+        - failed
+      description: Error codes for authentication response
+
+    Authentication:
+      type: object
+      description: Authentication session details
+
+    Session:
+      type: object
+      description: Session details
+
+    AuthenticationData:
+      type: object
+      properties:
+        content:
+          type: string
+          description: The content of the data
+      required:
+        - content
+      description: Represents raw data to be sent to the machine
